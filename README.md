@@ -15,8 +15,10 @@ _Notes:_
 <li>Number of participants in the smart contract is limited to 10 users, but this can be easily changed by changing the limit:</li>
 </ol>
 
-`;; line 31 - replace u10 with any number of uint
-asserts! (and (> participants u1) (< participants u10)) ERR_ZERO_OR_MAX)`
+```
+;; line 31 - replace u10 with any number of uint
+(asserts! (and (> participants u1) (< participants u10)) ERR_ZERO_OR_MAX)
+```
 
 The second smart contract `guess-the-number` allows two users to play a game - guess the number. The one who guesses the number that is closer to the random number takes the entire reward for himself. A value in uSTX, participants and user-number is set when initializing the contract.
 
@@ -27,11 +29,13 @@ _Notes:_
 <li>The range in which the number is determined is from 0 to 100. But it can also be changed, for this you need to change the code in several places:</li>
 </ol>
 
-`;; line 45 -replace 101 with the number you want, but no more than 65536
-(asserts! (< user-number 101) ERR_OVER_LIMIT)`
+```
+;; line 45 -replace 101 with the number you want, but no more than 65536
+(asserts! (< user-number 101) ERR_OVER_LIMIT)
 
-`;; line 161 -replace u100 with the number you want, but no more than u65536
-(define-data-var limit-numbers uint u100)`
+;; line 161 -replace u100 with the number you want, but no more than u65536
+(define-data-var limit-numbers uint u100)
+```
 
 ## How I built it
 
@@ -39,7 +43,7 @@ I created a project using Clarity for smart contracts and Typescript for writing
 
 ## Challenges we ran into
 
-Run `lcov` on Windows. I tried long and hard, but it didn't work. It would be nice to add a brew alternative to the [Clarinet_repositories](https://github.com/hirosystems/clarinet).
+Run `lcov` on Windows. I tried long and hard, but it didn't work. It would be nice to add a `brew` alternative to the [Clarinet](https://github.com/hirosystems/clarinet).
 Deal with Clarinet, before that I did not pay much attention to unit testing. I tested contracts in the testnet, after downloading the contract via Sandbox.
 Attach the [random number generator](https://github.com/FriendsFerdinand/random-test/tree/main/contracts).
 
@@ -50,7 +54,7 @@ That smart contracts work and are pretty secure. All tokens sent by users are st
 ## What's next for Implementing a simple bet/guess between users
 
 <ol>
-<li>Modify the `wager` smart contract, supplement the code, add resetting the variables to their initial values, and this smart contract will live forever.</li>
+<li>Modify the wager smart contract, supplement the code, add resetting the variables to their initial values, and this smart contract will live forever.</li>
 <li>Create a separate (top-level) smart contract, which will be the main one for smart contracts and calls will be made from it. This smart contract will allow you to organize parallel work for several bets/guesses.</li>
 <li>Building a frontend using Stacks.js or micro-stacks and make web UI.</li>
 </ol>
