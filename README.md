@@ -62,3 +62,41 @@ That smart contracts work and are pretty secure. All tokens sent by users are st
 <li>Create a separate (top-level) smart contract, which will be the main one for smart contracts and calls will be made from it. This smart contract will allow you to organize parallel work for several bets/guesses.</li>
 <li>Building a frontend using Stacks.js or micro-stacks and make web UI.</li>
 </ol>
+
+## Special notes
+
+For testnet/mainnet you need to remove the comments and change something:
+
+ `wager`
+<ol>
+<li>Change `0x51e5e1` to `0x00` and delete comment in line 120</li>
+
+```
+(define-data-var last-vrf (buff 64) 0x51e5e1) ;;change to 0x00 - mainnet
+```
+
+<li>Delete `;;` and delete comment in line 134</li>
+
+```
+;;(set-vrf) delete ';;' - mainnet
+```
+
+</ol>
+
+ `guess-the-number`
+<ol>
+<li>Change `0x51e5e1` to `0x00` and delete comment in line 163</li>
+
+```
+(define-data-var last-vrf (buff 64) 0x51e5e1)
+```
+
+<li>Delete `;;` and delete comment in line 177</li>
+
+```
+;;(set-vrf) delete ';;' - mainnet
+```
+
+</ol>
+
+# Made with :heart:
