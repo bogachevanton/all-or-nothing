@@ -1,3 +1,7 @@
+<p align="center">
+<img width="735" height="335" src="https://i.imgur.com/OzMB9le.png">
+</p>
+
 ## Inspiration
 
 December is a very difficult month for everyone because the calendar year is ending and it is necessary to finish and close all the cases in the outgoing year. But you also need to find time for your hobbies.
