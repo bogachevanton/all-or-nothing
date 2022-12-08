@@ -68,35 +68,31 @@ That smart contracts work and are pretty secure. All tokens sent by users are st
 For testnet/mainnet you need to remove the comments and change something:
 
  `wager`
-<ol>
-<li>Change `0x51e5e1` to `0x00` and delete comment in line 120</li>
+
+Change `0x51e5e1` to `0x00` and delete comment in line 120
 
 ```
 (define-data-var last-vrf (buff 64) 0x51e5e1) ;;change to 0x00 - mainnet
 ```
 
-<li>Delete `;;` and delete comment in line 134</li>
+Delete `;;` and delete comment in line 134
 
 ```
 ;;(set-vrf) delete ';;' - mainnet
 ```
 
-</ol>
-
  `guess-the-number`
-<ol>
-<li>Change `0x51e5e1` to `0x00` and delete comment in line 163</li>
+
+Change `0x51e5e1` to `0x00` and delete comment in line 163
 
 ```
 (define-data-var last-vrf (buff 64) 0x51e5e1)
 ```
 
-<li>Delete `;;` and delete comment in line 177</li>
+Delete `;;` and delete comment in line 177
 
 ```
 ;;(set-vrf) delete ';;' - mainnet
 ```
-
-</ol>
 
 # Made with :heart:
