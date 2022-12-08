@@ -34,10 +34,10 @@ _Notes:_
 </ol>
 
 ```
-;; line 45 -replace 101 with the number you want, but no more than 65536
+;; line 45 - replace 101 with the number you want, but no more than 65536
 (asserts! (< user-number 101) ERR_OVER_LIMIT)
 
-;; line 161 -replace u100 with the number you want, but no more than u65536
+;; line 161 - replace u100 with the number you want, but no more than u65536
 (define-data-var limit-numbers uint u100)
 ```
 
