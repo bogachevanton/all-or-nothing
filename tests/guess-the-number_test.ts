@@ -28,6 +28,7 @@ Clarinet.test({
                                                                  deployer.address),
         ]);
 
+        // Get the first receipt from the block and check that it is successful
         block.receipts[0].events.expectSTXTransferEvent(500000, deployer.address, guessContract);
         block.receipts[0].result.expectOk().expectBool(true);
 
@@ -61,7 +62,7 @@ Clarinet.test({
         // Get the wallet1 account
         let wallet_1 = accounts.get("wallet_1")!;
 
-        // Mine a block that contains a contract call to "choose-number"
+        // Mine a first block that contains a contract call to "choose-number"
         let block1 = chain.mineBlock([
             Tx.contractCall("guess-the-number", "choose-number", [
                                                                     types.uint(500000), // price
@@ -106,13 +107,13 @@ Clarinet.test({
         // Get the wallet1 account
         let wallet_1 = accounts.get("wallet_1")!;
 
-        // Get the wallet1 account
+        // Get the wallet2 account
         let wallet_2 = accounts.get("wallet_2")!;
 
-        // Get the wallet1 account
+        // Get the wallet3 account
         let wallet_3 = accounts.get("wallet_3")!;
 
-        // Mine a block that contains a contract call to "choose-number"
+        // Mine a first block that contains a contract call to "choose-number"
         let block1 = chain.mineBlock([
             Tx.contractCall("guess-the-number", "choose-number", [
                                                                     types.uint(500000), // price
@@ -138,7 +139,7 @@ Clarinet.test({
                                                                  wallet_2.address),
         ]);
 
-        // Mine a block that contains a contract call to "choose-number"
+        // Mine a third block that contains a contract call to "choose-number"
         let block3 = chain.mineBlock([
             Tx.contractCall("guess-the-number", "choose-number", [
                                                                     types.uint(700000), // price
@@ -148,7 +149,7 @@ Clarinet.test({
                                                                  wallet_3.address),
         ]);
 
-        // Get the first receipt from the blocks and check that it is successful
+        // Get the receipts from the blocks and check that it is successful
         block1.receipts[0].events.expectSTXTransferEvent(500000, deployer.address, guessContract);
         block1.receipts[0].result.expectOk().expectBool(true);
         block2.receipts[0].events.expectSTXTransferEvent(500000, wallet_1.address, guessContract);
@@ -172,7 +173,7 @@ Clarinet.test({
         // Get the wallet1 account
         let wallet_1 = accounts.get("wallet_1")!;
 
-        // Mine a block that contains a contract call to "choose-number"
+        // Mine a first block that contains a contract call to "choose-number"
         let block1 = chain.mineBlock([
             Tx.contractCall("guess-the-number", "choose-number", [
                                                                     types.uint(900000), // price
@@ -192,7 +193,7 @@ Clarinet.test({
                                                                  wallet_1.address),
         ]);
 
-        // Get the first receipt from the blocks and check that it is successful
+        // Get the receipts from the blocks and check that it is successful
         block1.receipts[0].events.expectSTXTransferEvent(900000, deployer.address, guessContract);
         block1.receipts[0].result.expectOk().expectBool(true);
         block2.receipts[0].events.expectSTXTransferEvent(900000, wallet_1.address, guessContract);
