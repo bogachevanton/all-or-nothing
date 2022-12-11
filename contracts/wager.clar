@@ -1,8 +1,9 @@
 ;; Errors
 (define-constant ERR_BETTING_NOT_ACTIVE (err u101))
-(define-constant ERR_REACHED_BLOCK_PICK_LIMIT (err u102))
-(define-constant ERR_NO_MONEY (err u103))
-(define-constant ERR_ZERO_OR_MAX (err u104))
+(define-constant ERR_BETTING_ACTIVE (err u102))
+(define-constant ERR_REACHED_BLOCK_PICK_LIMIT (err u103))
+(define-constant ERR_NO_MONEY (err u104))
+(define-constant ERR_ZERO_OR_MAX (err u105))
 
 ;; Variables
 (define-data-var bet-price uint u0)
@@ -10,6 +11,7 @@
 (define-data-var prize-pool uint u0)
 (define-data-var bet-participants uint u0)
 (define-data-var bet-active bool true)
+(define-data-var bet-round uint u1)
 (define-data-var betting-winner (optional principal) none)
 
 ;; Storage
@@ -20,6 +22,17 @@
                     number-of-participants: uint,
                     player: principal
                  }
+)
+
+(define-map bets-history { 
+                            round-id: uint,
+                            bet-id: uint
+                         }
+                         { 
+                            round-participants: uint,
+                            player: principal,
+                            price: uint
+                         }
 )
 
 ;; Functions
@@ -35,6 +48,7 @@
         )
         (try! (stx-transfer? (var-get bet-price) tx-sender (as-contract tx-sender)))
         (map-set bets { bet-id: (var-get last-bet-id) } { number-of-participants: (var-get bet-participants), player: tx-sender })
+        (map-set bets-history { round-id: (var-get bet-round), bet-id: (var-get last-bet-id) } { round-participants: (var-get bet-participants), player: tx-sender, price: (var-get bet-price) })
         (if (< (var-get last-bet-id) (- (var-get bet-participants) u1))
             (begin
                 (var-set last-bet-id (+ (var-get last-bet-id) u1))
@@ -43,6 +57,7 @@
             (begin
                 (try! (pick-winner))
                 (try! (send-ustx-to-winner))
+                (try! (update-round))
                 (ok true)
             )
         )       
@@ -57,6 +72,21 @@
         (var-set betting-winner (get player (map-get? bets (tuple (bet-id (var-get winner))))))
         (try! (as-contract (stx-transfer? (var-get prize-pool) tx-sender (unwrap-panic (var-get betting-winner)))))
         (print "You are a winner")
+        (ok true)
+    )
+)
+
+;; Update for next round
+(define-private (update-round)
+    (begin
+        (asserts! (not (var-get bet-active)) ERR_BETTING_ACTIVE)
+        (var-set bet-price u0)
+        (var-set last-bet-id u0)
+        (var-set prize-pool u0)
+        (var-set bet-participants u0)
+        (var-set bet-round (+ (var-get bet-round) u1))
+        (var-set bet-active (not (var-get bet-active)))
+        (var-set betting-winner none)
         (ok true)
     )
 )
@@ -79,6 +109,11 @@
 ;; Get bet info by ID
 (define-read-only (get-bet-info (id uint))
     (ok (map-get? bets (tuple (bet-id id))))
+)
+
+;; Get round info by ID
+(define-read-only (get-round-info (round uint) (bet uint))
+    (ok (map-get? bets-history (tuple (round-id round) (bet-id bet))))
 )
 
 ;; Prize pool in uSTX
@@ -117,7 +152,7 @@
 (define-data-var winner uint u0)
 (define-data-var limit-ids uint u0)
 (define-data-var last-block uint u0)
-(define-data-var last-vrf (buff 64) 0x51e5e1) ;;change to 0x00 - mainnet
+(define-data-var last-vrf (buff 64) 0x51e5e1ff) ;;change to 0x00 - mainnet
 (define-data-var b-idx uint u0)
 
 ;; Storage

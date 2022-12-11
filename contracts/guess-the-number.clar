@@ -1,9 +1,10 @@
 ;; Errors
 (define-constant ERR_GUESSING_NOT_ACTIVE (err u101))
-(define-constant ERR_REACHED_BLOCK_PICK_LIMIT (err u102))
-(define-constant ERR_NO_MONEY (err u103))
-(define-constant ERR_ZERO_OR_MAX (err u104))
-(define-constant ERR_OVER_LIMIT (err u105))
+(define-constant ERR_GUESSING_ACTIVE (err u102))
+(define-constant ERR_REACHED_BLOCK_PICK_LIMIT (err u103))
+(define-constant ERR_NO_MONEY (err u104))
+(define-constant ERR_ZERO_OR_MAX (err u105))
+(define-constant ERR_OVER_LIMIT (err u106))
 
 ;; Variables
 (define-data-var guess-price uint u0)
@@ -11,6 +12,7 @@
 (define-data-var prize-pool uint u0)
 (define-data-var guess-participants uint u0)
 (define-data-var guess-active bool true)
+(define-data-var guess-round uint u1)
 (define-data-var guessing-winner (optional principal) none)
 (define-data-var a int 0)
 (define-data-var b int 0)
@@ -35,6 +37,18 @@
                     }
 )
 
+(define-map guesses-history { 
+                            round-id: uint,
+                            guess-id: uint
+                         }
+                         { 
+                            round-participants: uint,
+                            player: principal,
+                            number: int,
+                            price: uint
+                         }
+)
+
 ;; Functions
 ;; Choose number and make a guess in uSTX
 (define-public (choose-number (price uint) (participants uint) (user-number int))    
@@ -49,6 +63,7 @@
         )
         (try! (stx-transfer? (var-get guess-price) tx-sender (as-contract tx-sender)))
         (map-set guesses { guess-id: (var-get last-guess-id) } { number-of-participants: (var-get guess-participants), player: tx-sender, number: user-number })
+        (map-set guesses-history { round-id: (var-get guess-round), guess-id: (var-get last-guess-id) } { round-participants: (var-get guess-participants), player: tx-sender, number: user-number , price: (var-get guess-price) })
         (if (< (var-get last-guess-id) (- (var-get guess-participants) u1))
             (begin
                 (var-set last-guess-id (+ (var-get last-guess-id) u1))
@@ -57,9 +72,25 @@
             (begin
                 (try! (pick-number))
                 (try! (find-winner-number))
+                (try! (update-round))
                 (ok true)
             )
         )       
+    )
+)
+
+;; Update for next round
+(define-private (update-round)
+    (begin
+        (asserts! (not (var-get guess-active)) ERR_GUESSING_ACTIVE)
+        (var-set guess-price u0)
+        (var-set last-guess-id u0)
+        (var-set prize-pool u0)
+        (var-set guess-participants u0)
+        (var-set guess-round (+ (var-get guess-round) u1))
+        (var-set guess-active (not (var-get guess-active)))
+        (var-set guessing-winner none)
+        (ok true)
     )
 )
 
@@ -82,7 +113,8 @@
             (var-set subtract-n2 (var-get g))
         )
         (if (is-eq (var-get subtract-n1) (var-get subtract-n2))
-            (begin 
+            (begin
+                (var-set guess-active (not (var-get guess-active)))
                 (try! (as-contract (stx-transfer? (var-get guess-price) tx-sender (unwrap-panic (get player (map-get? guesses (tuple (guess-id u0))))))))
                 (try! (as-contract (stx-transfer? (var-get guess-price) tx-sender (unwrap-panic (get player (map-get? guesses (tuple (guess-id u1))))))))
                 (print "Draw")
@@ -117,11 +149,6 @@
 ;; Get number of participants
 (define-read-only (get-number-of-participants)
     (ok (var-get guess-participants))
-)
-
-;; Get guess info by ID
-(define-read-only (get-guess-info (id uint))
-    (ok (map-get? guesses (tuple (guess-id id))))
 )
 
 ;; Prize pool in uSTX
@@ -160,7 +187,7 @@
 (define-data-var picked-number uint u0)
 (define-data-var limit-numbers uint u100)
 (define-data-var last-block uint u0)
-(define-data-var last-vrf (buff 64) 0x51e5e1) ;;change to 0x00 - mainnet
+(define-data-var last-vrf (buff 64) 0x51e5e1ff) ;;change to 0x00 - mainnet
 (define-data-var b-idx uint u0)
 
 ;; Storage

@@ -4,10 +4,11 @@ import { Clarinet, Tx, Chain, Account, types } from "https://deno.land/x/clarine
 const guessContract = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.guess-the-number";
 const errorCodes = {
                     ERR_GUESSING_NOT_ACTIVE : 101,
-                    ERR_REACHED_BLOCK_PICK_LIMIT : 102,
-                    ERR_NO_MONEY : 103,
-                    ERR_ZERO_OR_MAX : 104,
-                    ERR_OVER_LIMIT : 105,
+                    ERR_GUESSING_ACTIVE : 102,
+                    ERR_REACHED_BLOCK_PICK_LIMIT : 103,
+                    ERR_NO_MONEY : 104,
+                    ERR_ZERO_OR_MAX : 105,
+                    ERR_OVER_LIMIT : 106,
 }
 
 Clarinet.test({
@@ -51,7 +52,7 @@ Clarinet.test({
 });
 
 Clarinet.test({
-    name: "Make second guess and check betting enabled after second guess",
+    name: "Make 2 guesses and check betting enabled",
     async fn(chain: Chain, accounts: Map<string, Account>) {
 
         // Get the deployer's account
@@ -91,7 +92,113 @@ Clarinet.test({
         let receipt = chain.callReadOnlyFn("guess-the-number", "guessing-enabled", [], wallet_1.address);
 
         // Check that the function returns false
-        receipt.result.expectOk().expectBool(false);
+        receipt.result.expectOk().expectBool(true);
+    }
+});
+
+Clarinet.test({
+    name: "Make 4 guesses (2 rounds - 2 participants)",
+    async fn(chain: Chain, accounts: Map<string, Account>) {
+
+        // Get the deployer's account
+        let deployer = accounts.get("deployer")!;
+        
+        // Get the wallet1 account
+        let wallet_1 = accounts.get("wallet_1")!;
+
+        // Get the wallet1 account
+        let wallet_2 = accounts.get("wallet_2")!;
+
+        // Get the wallet1 account
+        let wallet_3 = accounts.get("wallet_3")!;
+
+        // Mine a block that contains a contract call to "choose-number"
+        let block1 = chain.mineBlock([
+            Tx.contractCall("guess-the-number", "choose-number", [
+                                                                    types.uint(500000), // price
+                                                                    types.uint(2), // participants
+                                                                    types.int(60), // user-number
+                                                                 ], 
+                                                                 deployer.address),
+        ]);
+
+        // Mine a second block that contains a contract call to "choose-number"
+        let block2 = chain.mineBlock([
+            Tx.contractCall("guess-the-number", "choose-number", [
+                                                                    types.uint(500000), // price
+                                                                    types.uint(2), // participants
+                                                                    types.int(65), // user-number
+                                                                 ], 
+                                                                 wallet_1.address),
+            Tx.contractCall("guess-the-number", "choose-number", [
+                                                                    types.uint(700000), // price
+                                                                    types.uint(2), // participants
+                                                                    types.int(80), // user-number
+                                                                 ], 
+                                                                 wallet_2.address),
+        ]);
+
+        // Mine a block that contains a contract call to "choose-number"
+        let block3 = chain.mineBlock([
+            Tx.contractCall("guess-the-number", "choose-number", [
+                                                                    types.uint(700000), // price
+                                                                    types.uint(2), // participants
+                                                                    types.int(17), // user-number
+                                                                 ], 
+                                                                 wallet_3.address),
+        ]);
+
+        // Get the first receipt from the blocks and check that it is successful
+        block1.receipts[0].events.expectSTXTransferEvent(500000, deployer.address, guessContract);
+        block1.receipts[0].result.expectOk().expectBool(true);
+        block2.receipts[0].events.expectSTXTransferEvent(500000, wallet_1.address, guessContract);
+        block2.receipts[0].events.expectSTXTransferEvent(1000000, guessContract, wallet_1.address);
+        block2.receipts[0].result.expectOk().expectBool(true);
+        block2.receipts[1].events.expectSTXTransferEvent(700000, wallet_2.address, guessContract);
+        block2.receipts[1].result.expectOk().expectBool(true);
+        block3.receipts[0].events.expectSTXTransferEvent(700000, wallet_3.address, guessContract);
+        block3.receipts[0].events.expectSTXTransferEvent(1400000, guessContract, wallet_2.address);
+        block3.receipts[0].result.expectOk().expectBool(true);
+    }
+});
+
+Clarinet.test({
+    name: "Make 2 guesses with same number",
+    async fn(chain: Chain, accounts: Map<string, Account>) {
+
+        // Get the deployer's account
+        let deployer = accounts.get("deployer")!;
+        
+        // Get the wallet1 account
+        let wallet_1 = accounts.get("wallet_1")!;
+
+        // Mine a block that contains a contract call to "choose-number"
+        let block1 = chain.mineBlock([
+            Tx.contractCall("guess-the-number", "choose-number", [
+                                                                    types.uint(900000), // price
+                                                                    types.uint(2), // participants
+                                                                    types.int(60), // user-number
+                                                                 ], 
+                                                                 deployer.address),
+        ]);
+
+        // Mine a second block that contains a contract call to "choose-number"
+        let block2 = chain.mineBlock([
+            Tx.contractCall("guess-the-number", "choose-number", [
+                                                                    types.uint(900000), // price
+                                                                    types.uint(2), // participants
+                                                                    types.int(60), // user-number
+                                                                 ], 
+                                                                 wallet_1.address),
+        ]);
+
+        // Get the first receipt from the blocks and check that it is successful
+        block1.receipts[0].events.expectSTXTransferEvent(900000, deployer.address, guessContract);
+        block1.receipts[0].result.expectOk().expectBool(true);
+        block2.receipts[0].events.expectSTXTransferEvent(900000, wallet_1.address, guessContract);
+        block2.receipts[0].events.expectSTXTransferEvent(900000, guessContract, deployer.address);
+        block2.receipts[0].events.expectSTXTransferEvent(900000, guessContract, wallet_1.address);
+        block2.receipts[0].result.expectOk().expectBool(true);
     }
 });
 
