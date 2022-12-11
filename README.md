@@ -5,7 +5,7 @@
 ## Inspiration
 
 December is a very difficult month for everyone because the calendar year is ending and it is necessary to finish and close all the cases in the outgoing year. But you also need to find time for your hobbies.
-My personal hobbies are Stacks and Clarity, so I sat at the computer for several evenings and wrote a couple of smart contracts that can also help someone else get distracted if they risk playing for STX.
+My personal hobbies are Stacks and Clarity, so I sat at the computer for several evenings and wrote a couple of smart contracts that can also help someone else get distracted if they risk playing for some STX.
 
 ## What it does
 
@@ -48,18 +48,24 @@ I created a project using Clarity for smart contracts and Typescript for writing
 ## Challenges we ran into
 
 Run `lcov` on Windows. I tried long and hard, but it didn't work. It would be nice to add a `brew` alternative to the [Clarinet](https://github.com/hirosystems/clarinet).
-Deal with Clarinet, before that I did not pay much attention to unit testing. I tested contracts in the testnet, after downloading the contract via Sandbox.
+
+Deal with Clarinet, before that I did not pay much attention to unit testing. I tested contracts in the testnet after downloading the contract via Sandbox and it's not cool.
+
 Attach the [random number generator](https://github.com/FriendsFerdinand/random-test/tree/main/contracts).
 
 ## Accomplishments that we're proud of
 
-That smart contracts work and are pretty secure. All tokens sent by users are stored in the contract address and can only be retrieved from the contract by completing the bet/guess cycle.
+<ol>
+<li>That smart contracts work and are pretty secure. All tokens sent by users are stored in the contract address and can only be retrieved from the contract by completing the bet/guess rounds.</li>
+<li>Contracts are completely self-sufficient. All variables are updated automatically for the next round. There is no need to call functions to restart.</li>
+<li>A large number of unit tests to check the performance of the contract.</li>
+</ol>
 
 ## What's next for Implementing a simple bet/guess between users
 
 <ol>
-<li>Modify the wager smart contract, supplement the code, add resetting the variables to their initial values, and this smart contract will live forever.</li>
 <li>Create a separate (top-level) smart contract, which will be the main one for smart contracts and calls will be made from it. This smart contract will allow you to organize parallel work for several bets/guesses.</li>
+<li>Come up with some more simple games to implement on the site.</li>
 <li>Building a frontend using Stacks.js or micro-stacks and make web UI.</li>
 </ol>
 
@@ -69,13 +75,13 @@ For testnet/mainnet you need to remove the comments and change something:
 
  `wager`
 
-Change `0x51e5e1` to `0x00` and delete comment in line 120
+Change `0x51e5e1ff` to `0x00` and delete comment in line 155
 
 ```
-(define-data-var last-vrf (buff 64) 0x51e5e1) ;;change to 0x00 - mainnet
+(define-data-var last-vrf (buff 64) 0x51e5e1ff) ;;change to 0x00 - mainnet
 ```
 
-Delete `;;` and delete comment in line 134
+Delete `;;` and delete comment in line 169
 
 ```
 ;;(set-vrf) delete ';;' - mainnet
@@ -83,13 +89,13 @@ Delete `;;` and delete comment in line 134
 
  `guess-the-number`
 
-Change `0x51e5e1` to `0x00` and delete comment in line 163
+Change `0x51e5e1ff` to `0x00` and delete comment in line 190
 
 ```
-(define-data-var last-vrf (buff 64) 0x51e5e1)
+(define-data-var last-vrf (buff 64) 0x51e5e1ff) ;;change to 0x00 - mainnet
 ```
 
-Delete `;;` and delete comment in line 177
+Delete `;;` and delete comment in line 204
 
 ```
 ;;(set-vrf) delete ';;' - mainnet
